@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState } from 'react';
 import {ToastAndroid} from 'react-native';
 import FaceNameCard from './faceName';
 import axios from 'axios';
+import { address } from './networkAddress';
 
 const AppContext = createContext();
 
@@ -10,25 +11,16 @@ export const useAppContext = () => {
 };
 
 export const AppProvider = ({ children }) => {
-  const [pressCount, setPressCount] = useState(0);
   const [cards, setCards] = useState([]);
   const [userData, setUserData] = useState(null);
   const [userProfilePicture, setUserProfilePicture] = useState(null);
 
-  const incrementPressCount = () => {
-    if (pressCount < 4) {
-      setPressCount(pressCount + 1);
-      setCards([...cards, <FaceNameCard key={pressCount} cards={pressCount} />]);
-    }
-    else{
-        ToastAndroid.show('max face limit reached', ToastAndroid.SHORT);
-    }
-  };
+  const ip_address = address.ip_address;
 
   const getUserData = async (username) => {
     try{
-      const response = await axios.get(`http://192.168.50.75:8000/get-user-data/${username}`);
-      console.log(response.data);
+      const response = await axios.get(`http://${ip_address}/get-user-data/${username}`);
+      // console.log(response.data);
       setUserData(response.data);
       await fetchImages(username);
     }
@@ -39,8 +31,8 @@ export const AppProvider = ({ children }) => {
   
   const fetchImages = async (username) => {
     try{
-      const fetchUserImages = await axios.get(`http://192.168.50.75:8000/get-user-images/${username}`);
-      setUserProfilePicture(fetchUserImages.data.profilePicture);
+      const response = await axios.get(`http://${ip_address}/get-user-images/${username}`);
+      setUserProfilePicture(response.data.profilePicture);
     }
     catch(error){
       console.error("error fetching images: ",error)
@@ -49,9 +41,7 @@ export const AppProvider = ({ children }) => {
 
 
   return (
-    <AppContext.Provider value={{ 
-        pressCount, 
-        incrementPressCount, 
+    <AppContext.Provider value={{  
         cards, 
         getUserData, 
         userData,

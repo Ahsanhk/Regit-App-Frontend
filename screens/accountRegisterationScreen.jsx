@@ -6,6 +6,7 @@ import axios from 'axios';
 
 import Container from '../components/background';
 import { color } from '../components/color';
+import { address } from '../components/networkAddress';
 
 const AccountRegisterationScreen = () => {
 
@@ -29,7 +30,8 @@ const AccountRegisterationScreen = () => {
             password,
         };
 
-        console.log(userData.mobileNumber);
+        const ip_address = address.ip_address;
+
 
         const newErrors = {};
         if (!username.trim()) {
@@ -66,7 +68,7 @@ const AccountRegisterationScreen = () => {
         // const mobileNumber = userData.mobileNumber
         
         try {
-            const response = await axios.post('http://192.168.100.8:8000/generate-otp', {
+            const response = await axios.post(`http://${ip_address}/generate-otp`, {
               mobileNumber: userData.mobileNumber,
             });
 

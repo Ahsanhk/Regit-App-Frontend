@@ -7,10 +7,13 @@ import happy from '../assets/happi.png';
 import Container from '../components/background';
 import { color } from '../components/color';
 import { useAppContext } from '../components/authProvider';
+import { address } from '../components/networkAddress';
 
 const LoginScreen = () => {
     
     const navigation = useNavigation();
+
+    const ip_address = address.ip_address;
 
     const [text, setText] = useState('');
     const [username, setUsername] = useState('');
@@ -21,7 +24,7 @@ const LoginScreen = () => {
 
     const handleAuthentication = async () => {
         try {
-            const response = await axios.get(`http://192.168.50.75:8000/authentication?username=${username}&password=${password}`);
+            const response = await axios.get(`http://${ip_address}/authentication?username=${username}&password=${password}`);
             const data = response.data;
             
     // console.log(username);
@@ -149,6 +152,8 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         marginTop: 20,
         fontSize: 16,
+        borderWidth: 1,
+        borderColor: 'lightgray',
     },
 });
 

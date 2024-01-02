@@ -5,32 +5,29 @@ import DropMenu from './dropMenu';
 import { color } from './color';
 import axios from 'axios';
 import { useAppContext } from './authProvider';
+import { useNavigation } from '@react-navigation/native';
+import { address } from './networkAddress';
 
-const FaceNameCard = ({faceName}) => { 
+const FaceNameCard = ({faceName, face_id, fetchImages}) => { 
     const [isTrayVisible, setIsTrayVisible] = useState(false);
     const [updatedName, setUpdatedName] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
 
-    
-    // const faceName =  faceName,
-    // updatedName: updatedName,
+    const ip_address = address.ip_address;
     
     const { userData} = useAppContext();
 
-    const username = userData.username;
+    const user_id = userData._id;
 
     const toggleTrayVisibility = () => {
         setIsTrayVisible(!isTrayVisible);
       };
     
       const deleteItem = async () => {
-        const deleteData = {
-          username,
-          faceName,
-        }
         try{
-          const response = await axios.post(`http://192.168.50.75:8000/delete-face-name`, deleteData);
-          console.log(response.data);
+          const response = await axios.post(`http://${ip_address}/delete-face-name`, { face_id });
+          // console.log(response.data);
+          fetchImages(user_id);
           ToastAndroid.show('face deleted successfully', ToastAndroid.SHORT)
         }
         catch(error){
@@ -40,18 +37,19 @@ const FaceNameCard = ({faceName}) => {
 
       const renameItem = async () => {
         const updatedData = {
-          username,
-          faceName,
+          face_id,
           updatedName,
         };
-        console.log(updatedData);
 
         try{
-          const response = await axios.post("http://192.168.50.75:8000/update-face-name", updatedData);
-          console.log(response.data);
-          ToastAndroid.show('label renamed successfully', ToastAndroid.SHORT)
+          const response = await axios.post(`http://${ip_address}/update-face-name`, updatedData);
+          // console.log(response.data);
+          fetchImages(user_id);
           setIsModalVisible(false);
+          toggleTrayVisibility();
 
+          ToastAndroid.show('label renamed successfully', ToastAndroid.SHORT)
+          
         }
         catch(error){
           console.error("error renaming: ", error)
@@ -143,9 +141,9 @@ const styles = StyleSheet.create({
         padding:10,
         height:55,
         borderRadius:8,
-        borderColor:'#9bb2c2',
+        borderColor:'#7277ab',
         borderWidth:1,
-        borderStyle: 'dotted',
+        // borderStyle: 'dotted',
         marginBottom: 20,
         overflow: 'hidden',
     },

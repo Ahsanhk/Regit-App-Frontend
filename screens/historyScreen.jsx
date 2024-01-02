@@ -14,6 +14,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 // import { Calendar } from 'react-native-calendars';
 
 import axios from 'axios';
+import { address } from '../components/networkAddress';
 
 const HistoryScreen = () => {
     const [selectedStartDate, setSelectedStartDate] = useState('');
@@ -22,11 +23,13 @@ const HistoryScreen = () => {
     const { userData} = useAppContext();
     const [userTransactions, setUserTransactions] = useState([]);
 
+    const ip_address = address.ip_address;
+
     const navigation = useNavigation();
 
     const fetchTransactions = async (username) => {
         try {
-          const fetchUserTransactions = await axios.get(`http://192.168.50.75:8000/get-user-transactions/${username}`);
+          const fetchUserTransactions = await axios.get(`http://${ip_address}/get-user-transactions/${username}`);
           setUserTransactions(fetchUserTransactions.data.transaction);
         } catch (error) {
           console.error("Error fetching transaction history: ", error);

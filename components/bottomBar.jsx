@@ -67,6 +67,8 @@ const styles = StyleSheet.create({
         height: '100%',
         width: '100%',
         backgroundColor: color.secondary,
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
     },
     body: {
         height:'100%',
@@ -84,6 +86,7 @@ const styles = StyleSheet.create({
     },
     iconText: {
         color: color.icon,
+        fontSize: 12
     },
 })
 

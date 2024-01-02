@@ -11,17 +11,19 @@ import TopBar from '../components/topbar';
 import { useAppContext } from '../components/authProvider';
 import { useNavigation } from '@react-navigation/native';
 import { color } from '../components/color';
+import { address } from '../components/networkAddress';
 
 const RegistrationScreen = () => {
   const [hasPermission, setHasPermission] = React.useState();
   const [faceData, setFaceData] = React.useState([]);
   const [cameraRef, setCameraRef] = useState(null);
   const [capturedPhoto, setCapturedPhoto] = useState(null);
-  const { pressCount, incrementPressCount, userData } = useAppContext();
+  const {userData } = useAppContext();
   const [modalVisible, setModalVisible] = useState(false); 
   const [faceName, setFaceName] = useState('');
 
-
+  const ip_address = address.ip_address
+  const user_id = userData._id
   const navigation = useNavigation();
 
   React.useEffect(() => {
@@ -45,7 +47,6 @@ const RegistrationScreen = () => {
 
   const captureImage = () => {
     navigation.navigate('Home', { shouldAddCard: true });
-    incrementPressCount();
   }
 
   const takePicture = async () => {
@@ -88,24 +89,24 @@ const RegistrationScreen = () => {
   
       const responseData = await response.json();
       const imageUrl = responseData.url;
-      console.log(userData.username);
-      console.log(faceName)
-      await sendImageUrlToBackend(userData.username, imageUrl, faceName);
-      ToastAndroid.show("face registered successfully",ToastAndroid.SHORT);
-      console.log('url: ', imageUrl);
+      // console.log(faceName)
+      const imageData= {
+        user_id,
+        imageUrl,
+        faceName,
+      }
+      await sendImageUrlToBackend(imageData);
+      ToastAndroid.show("face registered successfully", ToastAndroid.SHORT);
+      // console.log('url: ', imageUrl);
     } 
     catch (error) {
       console.error('Error uploading to Cloudinary:', error.message);
     }
   };
 
-  const sendImageUrlToBackend = async (username, imageUrl, faceName) => {
+  const sendImageUrlToBackend = async (imageData) => {
     try {
-      const response = await axios.post('http://192.168.50.75:8000/upload-user-face', {
-        username,
-        imageUrl,
-        faceName,
-      });
+      const response = await axios.post(`http://${ip_address}/upload-user-face`, imageData);
     }
     catch (error) {
       console.error('Error sending image URL to backend:', error.message);

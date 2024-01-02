@@ -3,32 +3,29 @@ import { View, Text, StyleSheet, Switch, TouchableOpacity, Image } from 'react-n
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import BottomBar from '../components/bottomBar';
-// import CreditCard from '../components/card';
 import BalanceCard from '../components/balanceCard';
 import RegisterCard from '../components/registerCard';
 import { color } from '../components/color';
 import CreditCard from '../components/creditCard';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useAppContext } from '../components/authProvider';
 import axios from 'axios';
 import { ScrollView } from 'react-native-gesture-handler';
 import FaceNameCard from '../components/faceName';
+import DefaultCreditCard from '../components/defaultCreditCard';
+import { address } from '../components/networkAddress';
 
 const HomeScreen = () => {
     const navigation = useNavigation();
+
     const { userData, userProfilePicture} = useAppContext();
-    const [toggleValue, setToggleValue] = useState(false);
     const [cardData, setCardData] = useState([]);
     const [faceImages, setFaceImages] = useState([]);
 
+    const ip_address = address.ip_address;
+
     // const [userProfilePicture, setUserProfilePicture] = useState([]);
 
-    useEffect(() => {
-        if (cardData && cardData.activeStatus !== undefined) {
-          setToggleValue(cardData.activeStatus);
-        }
-        
-      }, [cardData]);
 
     // useEffect(() => {
     // if (userProfilePicture !== undefined) {
@@ -37,30 +34,23 @@ const HomeScreen = () => {
     
     // }, [userProfilePicture]);
 
-    useEffect(() => {
-        const username = userData.username;
+    useFocusEffect(
+        React.useCallback(() => {
+            
+        // const username = userData.username;
         const user_id = userData._id; 
         // fetchCardData(username);
-        fetchImages(username);
+        fetchImages(user_id);
         getCardData(user_id);
         // fetchProfilePicture(username);
     }, [])
+    );
 
-    //   const fetchCardData = async (username) => {
-    //     try{
-    //       const fetchCardData = await axios.get(`http://192.168.50.75:8000/get-user-cards/${username}`);
-    //     //   console.log(fetchCardData.data);
-    //     //   setCardData(fetchCardData.data);
-    //     }
-    //     catch(error){
-    //       console.error("error fetching Card Data: ",error)
-    //     }
-    //   }
 
       const getCardData = async (user_id) => {
         try{
-            const response = await axios.get(`http://192.168.50.75:8000/get-cards/${user_id}`);
-            console.log(response.data);
+            const response = await axios.get(`http://${ip_address}/get-cards/${user_id}`);
+            // console.log(response.data);
             setCardData(response.data);
         }
         catch(error){
@@ -68,11 +58,17 @@ const HomeScreen = () => {
         }
       }
 
-      const fetchImages = async(username) => {
+      const fetchImages = async(user_id) => {
         try{
-            const response = await axios.get(`http://192.168.50.75:8000/get-user-images/${username}`)
-            // console.log(response.data.user_faces);
-            setFaceImages(response.data.user_faces);
+            const response = await axios.get(`http://${ip_address}/get-user-faces/${user_id}`)
+            // console.log(response.data);
+
+            if (Array.isArray(response.data)) {
+                setFaceImages(response.data);
+              } else {
+                console.error("No user face images found");
+                setFaceImages([]); 
+              }
         }
         catch(error){
             console.error("error fetching user face Images: ", error)
@@ -94,30 +90,68 @@ const HomeScreen = () => {
         const username = userData.username
         setToggleValue(value);
         try{
-            const response = await axios.post(`http://192.168.50.75:8000/update-active-status/${username}`)
-            console.log(response.data)
+            const response = await axios.post(`http://${ip_address}/update-active-status/${username}`)
+            // console.log(response.data)
         }
         catch(error){
             console.error("error setting card activve status ", error)
         }
     };
 
-    function cardStructure(){
-        if(cardData.default){
-            return(
-                <CreditCard 
-                    bankName={cardData.bankName}
-                    cardNumber={cardData.cardNumber}
-                    updatedIssueDate={cardData.issueDate}
-                /> 
-            )
+    const renderFace = () => {
+        if (faceImages.length === 0) {
+          return <Text>No faces</Text>;
+        } else {
+          return (
+            <View>
+              {faceImages.map((face, index) => (
+                <FaceNameCard key={face.faceName} faceName={face.faceName} face_id ={face._id} fetchImages={fetchImages} />
+              ))}
+            </View>
+          );
         }
-        if(!cardData.default){
-            return(
-                <View></View>
-            )
-        }
-    }
+      };
+
+    const checkDefaultTrue = () => {
+        return cardData.map((card, index) => {
+          if (card.default) {
+            return (
+              <View key = {index}>
+                <TouchableOpacity style={{width: '100%',}} onPress={()=>navigation.navigate('Card-Details', { cardDetails: card }) }>
+                    <DefaultCreditCard
+                        bankName={card.bankName}
+                        cardNumber={card.cardNumber}
+                        updatedIssueDate={card.issueDate}
+                    /> 
+                </TouchableOpacity>
+              </View>
+            );
+          }
+        });
+      };
+
+      const checkDefaultFalse = () => {
+        return (
+            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+              {cardData.map((card, index) => {
+                if (!card.default) {
+                  return (
+                    <TouchableOpacity key={index} style={{ padding: 5, width: 200, }} onPress={()=>navigation.navigate('Card-Details', { cardDetails: card }) }>
+                      <CreditCard
+                        bankName={card.bankName}
+                        cardNumber={card.cardNumber}
+                        updatedIssueDate={card.issueDate}
+                      />
+                    </TouchableOpacity>
+                  );
+                }
+                return null;
+              })}
+            </ScrollView>
+          );
+      };
+
+      
 
     function creditCardRender(){
         // console.log("data recieved: ", cardData)
@@ -137,9 +171,27 @@ const HomeScreen = () => {
         }
         else{
             return(
-                <TouchableOpacity style={{width: '100%'}} onPress={() => navigation.navigate('Card-Details')}>
-                    {cardStructure}
-                </TouchableOpacity>
+                <View>
+                    <TouchableOpacity style={{width: '100%', height: 200}}
+                    onPress={() => navigation.navigate('Card-Details')}
+                    >
+                        {checkDefaultTrue()}
+                    </TouchableOpacity>
+                    <View>
+                        <ScrollView style={{overflow: 'hidden'}}>
+                            <Text style={{padding: 10, fontSize: 18, fontWeight: 'bold'}}>Your Saved Cards</Text>
+                            <ScrollView>
+                                {checkDefaultFalse()}
+                                <View>
+                                    <TouchableOpacity onPress={() => navigation.navigate('Card-Register')}>
+                                        <Text>Add</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </ScrollView>
+                            
+                        </ScrollView>
+                    </View>
+                </View>
             )
         }
       }
@@ -162,7 +214,7 @@ const HomeScreen = () => {
                         )} */}
                     </View>
                     <View style={{ alignItems: 'center'}}>
-                        <Text style={{color: 'white',fontSize: 18}}>Welcome </Text>
+                        <Text style={{color: 'white',fontSize: 16}}>Welcome, </Text>
                         <Text style={{color: 'white',fontSize: 16}}>{userData.fullname} </Text>
                     </View>
                     
@@ -178,21 +230,10 @@ const HomeScreen = () => {
                 </View>
                 
                 <View style={styles.body}>
-                    {/* <View style={styles.toggleBOdy}>
-                        <Text style={{fontWeight: 'bold'}}>Card Status: {toggleValue ? 'Active' : 'Inactive'}</Text>
-                        <Switch
-                            trackColor={{ false: '#767577', true: '#81b0ff' }}
-                            thumbColor={toggleValue ? '#f5dd4b' : '#f4f3f4'}
-                            ios_backgroundColor="#3e3e3e"
-                            onValueChange={toggleSwitch}
-                            value={toggleValue}
-                            style = {styles.toggle}
-                        />
-                    </View> */}
                     <ScrollView showsVerticalScrollIndicator={false}>
-                        <View style={styles.block1}>
+                        {/* <View style={styles.block1}>
                             <BalanceCard />
-                        </View>
+                        </View> */}
                         <View style={styles.block2}>
                             {creditCardRender()}
                         </View>
@@ -211,13 +252,11 @@ const HomeScreen = () => {
                                 </View>
                                 <View style={styles.cardBottom}>
                                         <ScrollView style ={styles.nameBox} showsVerticalScrollIndicator={false}>
-                                        {faceImages.map((face, index) => (
-                                            <FaceNameCard key={face.faceName} faceName={face.faceName} />
-                                        ))}
+                                            {renderFace()}
                                         </ScrollView>
                                     
                                 </View>
-                        </View>
+                            </View>
 
                         </View>
                     </ScrollView>
@@ -266,13 +305,13 @@ const styles = StyleSheet.create({
         flex: 0.1,
     },
     block1:{
-        flex:0.8, 
+        flex:0.8,
     },
     block2:{
         paddingTop: 15,
         flex:0.2,
-        alignItems: 'center',
-        justifyContent: 'center',
+        // alignItems: 'center',
+        // justifyContent: 'center',
     },
     block3:{
         paddingTop: 15,
