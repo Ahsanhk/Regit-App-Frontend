@@ -1,0 +1,57 @@
+import React, { createContext, useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+export const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  // const [test, setTest] = useState("test Value");
+  const [isLoading, setIsLoading] = useState(false);
+  const [userToken, setUserToken] = useState(null);
+  const [userID, setUserID] = useState(null);
+
+  const login = async (jwt_token, user_ID) => {
+    try {
+      setIsLoading(true);
+      await AsyncStorage.setItem("userToken", jwt_token);
+      await AsyncStorage.setItem("userID", user_ID);
+      setUserToken(jwt_token);
+      setUserID(user_ID);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error setting userToken and userID:", error);
+      setIsLoading(false);
+    }
+  };
+
+  const logout = () => {
+    setIsLoading(true);
+    setUserToken(null);
+    AsyncStorage.removeItem("userToken");
+    AsyncStorage.removeItem("userID");
+    setIsLoading(false);
+  };
+
+  const isLoggedIn = async () => {
+    try {
+      setIsLoading(true);
+      let userToken = await AsyncStorage.getItem("userToken");
+      let userID = await AsyncStorage.getItem("userID");
+      setUserToken(userToken);
+      setUserID(userID);
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    isLoggedIn();
+  }, [userToken, userID]);
+  return (
+    <AuthContext.Provider
+      value={{ login, logout, isLoading, userToken, userID }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
