@@ -132,7 +132,7 @@ const FaceNameCard = ({faceName, face_id, fetchImages}) => {
 
 const styles = StyleSheet.create({
     container: {
-        width: '95%',
+        width: '100%',
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-evenly',
@@ -143,7 +143,6 @@ const styles = StyleSheet.create({
         borderRadius:8,
         borderColor:'#7277ab',
         borderWidth:1,
-        // borderStyle: 'dotted',
         marginBottom: 20,
         overflow: 'hidden',
     },

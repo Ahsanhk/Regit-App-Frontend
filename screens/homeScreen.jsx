@@ -122,6 +122,7 @@ const HomeScreen = () => {
                         bankName={card.bankName}
                         cardNumber={card.cardNumber}
                         updatedIssueDate={card.issueDate}
+                        getCardData = {getCardData}
                     /> 
                 </TouchableOpacity>
               </View>

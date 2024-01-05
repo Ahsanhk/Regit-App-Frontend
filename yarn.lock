@@ -2258,7 +2258,22 @@
   "resolved" "https://registry.npmjs.org/@types/range-parser/-/range-parser-1.2.4.tgz"
   "version" "1.2.4"
 
-"@types/react@~18.0.27":
+"@types/react-native-vector-icons@^6.4.18":
+  "integrity" "sha512-YGlNWb+k5laTBHd7+uZowB9DpIK3SXUneZqAiKQaj1jnJCZM0x71GDim5JCTMi4IFkhc9m8H/Gm28T5BjyivUw=="
+  "resolved" "https://registry.npmjs.org/@types/react-native-vector-icons/-/react-native-vector-icons-6.4.18.tgz"
+  "version" "6.4.18"
+  dependencies:
+    "@types/react" "*"
+    "@types/react-native" "^0.70"
+
+"@types/react-native@^0.70":
+  "integrity" "sha512-c6WbyCgWTBgKKMESj/8b4w+zWcZSsCforson7UdXtXMecG3MxCinYi6ihhrHVPyUrVzORsvEzK8zg32z4pK6Sg=="
+  "resolved" "https://registry.npmjs.org/@types/react-native/-/react-native-0.70.19.tgz"
+  "version" "0.70.19"
+  dependencies:
+    "@types/react" "*"
+
+"@types/react@*", "@types/react@~18.0.27":
   "integrity" "sha512-ExsidLLSzYj4cvaQjGnQCk4HFfVT9+EZ9XZsQ8Hsrcn8QNgXtpZ3m9vSIC2MWtx7jHictK6wYhQgGh6ic58oOw=="
   "resolved" "https://registry.npmjs.org/@types/react/-/react-18.0.38.tgz"
   "version" "18.0.38"
@@ -7120,7 +7135,7 @@
     "kleur" "^3.0.3"
     "sisteransi" "^1.0.5"
 
-"prop-types@*", "prop-types@^15.5.10", "prop-types@^15.6.2", "prop-types@^15.7.2", "prop-types@15.8.1":
+"prop-types@*", "prop-types@^15.5.10", "prop-types@^15.5.7", "prop-types@^15.6.2", "prop-types@^15.7.2", "prop-types@15.8.1":
   "integrity" "sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg=="
   "resolved" "https://registry.npmjs.org/prop-types/-/prop-types-15.8.1.tgz"
   "version" "15.8.1"
@@ -7435,7 +7450,7 @@
     "postcss-value-parser" "^4.2.0"
     "styleq" "^0.1.2"
 
-"react-native@*", "react-native@^0.0.0-0 || 0.60 - 0.71 || 1000.0.0", "react-native@>= 0.30.0", "react-native@>=0.42.0", "react-native@>=0.48.4", "react-native@0.71.14":
+"react-native@*", "react-native@^0.0.0-0 || 0.60 - 0.71 || 1000.0.0", "react-native@>= 0.30.0", "react-native@>=0.42.0", "react-native@>=0.47.1", "react-native@>=0.48.4", "react-native@0.71.14":
   "integrity" "sha512-7uhzas8aKpU2EARhlONt7yiclh+7PXEOJk469ewpQyId8Owq5WNtZvQm/z3k4mHUriMeQ37vgSGkOInSKcCazw=="
   "resolved" "https://registry.npmjs.org/react-native/-/react-native-0.71.14.tgz"
   "version" "0.71.14"
@@ -8565,6 +8580,13 @@
   "version" "5.0.1"
   dependencies:
     "is-number" "^7.0.0"
+
+"toggle-switch-react-native@^3.3.0":
+  "integrity" "sha512-DE0UjTOvUpUXjrRjF5r06dqzp/XrbDvJ6hYAwTp6ZgNrxn5Z7bDqe9Rs7axaRbWr7MXe5FdSGkCmfmK6tL7esw=="
+  "resolved" "https://registry.npmjs.org/toggle-switch-react-native/-/toggle-switch-react-native-3.3.0.tgz"
+  "version" "3.3.0"
+  dependencies:
+    "prop-types" "^15.5.7"
 
 "toidentifier@1.0.1":
   "integrity" "sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA=="
