@@ -60,35 +60,35 @@ const FaceNameCard = ({faceName, face_id, fetchImages}) => {
     return(
     <View style={styles.container}>
         <View style={styles.textContainer}>
-          <Text style={{ color: '#C2DFF4', fontSize: 16 }}>
+          <Text style={{ color: 'black', fontSize: 16 }}>
             {faceName}
           </Text>
         </View>
         
           {!isTrayVisible && (
             <TouchableOpacity onPress={toggleTrayVisibility}>
-                <Icon name="chevron-left" size={24} color="white" />
+                <Icon name="chevron-left" size={24} color="black" />
             </TouchableOpacity>
             )}
-            {isTrayVisible && (
+            {/* {isTrayVisible && (
             <TouchableOpacity onPress={toggleTrayVisibility}>
                 <Icon name="chevron-right" size={24} color="white" />
             </TouchableOpacity>
-            )}
+            )} */}
         
         <View style={{alignContent: 'flex-end'}}>
         {isTrayVisible && (
           <View style={styles.tray}>
             <TouchableOpacity onPress={deleteItem}>
               <View style={styles.trayOption}>
-                <Icon name="delete" size={24} color="white" />
+                <Icon name="delete" size={24} color="black" />
                 {/* <Text>Delete</Text> */}
               </View>
             </TouchableOpacity>
   
             <TouchableOpacity onPress={() => setIsModalVisible(true)}>
               <View style={styles.trayOption}>
-                <Icon name="square-edit-outline" size={24} color="white" />
+                <Icon name="square-edit-outline" size={24} color="black" />
                 {/* <Text>Rename</Text> */}
               </View>
             </TouchableOpacity>
@@ -119,7 +119,7 @@ const FaceNameCard = ({faceName, face_id, fetchImages}) => {
   
             <TouchableOpacity onPress={toggleTrayVisibility}>
               <View style={styles.trayOption}>
-                <Icon name="cancel" size={24} color="white" />
+                <Icon name="cancel" size={24} color="black" />
                 {/* <Text>Cancel</Text> */}
               </View>
             </TouchableOpacity>
@@ -136,14 +136,14 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-evenly',
-        alignContent: 'center',
-        backgroundColor: color.name,
+        alignItems: 'center',
+        backgroundColor: '#f7f7f7',
         padding:10,
         height:55,
         borderRadius:8,
-        borderColor:'#7277ab',
+        borderColor:'lightgray',
         borderWidth:1,
-        marginBottom: 20,
+        marginBottom: 5,
         overflow: 'hidden',
     },
     textContainer: {
@@ -159,8 +159,6 @@ const styles = StyleSheet.create({
         width: '10%',
         paddingLeft: '80%',
         alignItems: 'center',
-        // backgroundColor: 'white'
-
     },
     tray: {
         display: 'flex',

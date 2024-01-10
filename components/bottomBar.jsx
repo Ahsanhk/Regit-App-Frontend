@@ -67,7 +67,11 @@ const BottomBar = () => {
                     <View style={styles.additionalIcons}>
                         
                         <Animated.View style={[styles.additionalIcon, { transform: [{ translateX: leftIconTranslate }] }]}>
-                            <TouchableOpacity style={styles.additionalIcon} onPress={() => navigation.navigate('Card-Register')}>
+                            <TouchableOpacity style={styles.additionalIcon} 
+                            onPress={() => {
+                                navigation.navigate('Card-Register') 
+                                toggleOptions()
+                                } }>
                                 <View style={styles.iconContainer}>
                                     <Icon name='credit-card' size={28} color="white" />
                                 </View>
@@ -75,11 +79,15 @@ const BottomBar = () => {
                         </Animated.View>
 
                         <Animated.View style={[styles.additionalIcon, { transform: [{ translateX: rightIconTranslate }] }]}>
-                        <TouchableOpacity style={styles.additionalIcon} onPress={() => navigation.navigate('Register')}>
-                            <View style={styles.iconContainer}>
-                                <Icon name='face' size={28} color="white" />
-                            </View>
-                        </TouchableOpacity>
+                            <TouchableOpacity style={styles.additionalIcon} 
+                            onPress={() => {
+                                navigation.navigate('Register')
+                                toggleOptions()
+                                }}>
+                                <View style={styles.iconContainer}>
+                                    <Icon name='face' size={28} color="white" />
+                                </View>
+                            </TouchableOpacity>
                         </Animated.View>
                     </View>
                 )}
@@ -132,7 +140,8 @@ const styles = StyleSheet.create({
         width: 65,
         height: 65,
         borderRadius: 300,
-        backgroundColor: "red",
+        marginRight: 10,
+        backgroundColor: "#439ae0",
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -150,7 +159,7 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     iconContainer: {
-        backgroundColor: '#FF6347', 
+        backgroundColor: '#439ae0', 
         width: 40,
         height: 40,
         borderRadius: 10,

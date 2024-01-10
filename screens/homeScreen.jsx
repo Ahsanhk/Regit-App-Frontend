@@ -14,6 +14,8 @@ import { ScrollView } from 'react-native-gesture-handler';
 import FaceNameCard from '../components/faceName';
 import DefaultCreditCard from '../components/defaultCreditCard';
 import { address } from '../components/networkAddress';
+import FacesContainer from '../components/facesContainer';
+import TransactionCard from '../components/transactionCard';
 
 const HomeScreen = () => {
     const navigation = useNavigation();
@@ -21,6 +23,23 @@ const HomeScreen = () => {
     const { userData, userProfilePicture} = useAppContext();
     const [cardData, setCardData] = useState([]);
     const [faceImages, setFaceImages] = useState([]);
+
+    const [userTransactions, setUserTransactions] = useState([]);
+    const transactionData = userTransactions.reverse();
+    const slicedTransactions = userTransactions.slice(0,4);
+
+    const fetchTransactions = async (username) => {
+        try {
+          const fetchUserTransactions = await axios.get(`http://${ip_address}/get-user-transactions/${username}`);
+          setUserTransactions(fetchUserTransactions.data.transaction);
+        } catch (error) {
+          console.error("Error fetching transaction history: ", error);
+        }
+    };
+    useEffect(() => {
+        const username = userData.username;
+        fetchTransactions(username);
+    },[])
 
     const ip_address = address.ip_address;
 
@@ -86,27 +105,18 @@ const HomeScreen = () => {
     //     }
     //   }
 
-    const toggleSwitch = async (value) => {
-        const username = userData.username
-        setToggleValue(value);
-        try{
-            const response = await axios.post(`http://${ip_address}/update-active-status/${username}`)
-            // console.log(response.data)
-        }
-        catch(error){
-            console.error("error setting card activve status ", error)
-        }
-    };
 
     const renderFace = () => {
         if (faceImages.length === 0) {
           return <Text>No faces</Text>;
-        } else {
+        } 
+        else {
           return (
-            <View>
+            <View style={{paddingLeft: 10}}>
               {faceImages.map((face, index) => (
                 <FaceNameCard key={face.faceName} faceName={face.faceName} face_id ={face._id} fetchImages={fetchImages} />
               ))}
+              
             </View>
           );
         }
@@ -117,7 +127,12 @@ const HomeScreen = () => {
           if (card.default) {
             return (
               <View key = {index}>
-                <TouchableOpacity style={{width: '100%',}} onPress={()=>navigation.navigate('Card-Details', { cardDetails: card }) }>
+                <View style={{marginBottom: '2.5%'}}>
+                    <BalanceCard 
+                        balance={card.balance}
+                    />
+                </View>
+                <TouchableOpacity style={{width: '100%',height: 200}} onPress={()=>navigation.navigate('Card-Details', { cardDetails: card }) }>
                     <DefaultCreditCard
                         bankName={card.bankName}
                         cardNumber={card.cardNumber}
@@ -173,21 +188,14 @@ const HomeScreen = () => {
         else{
             return(
                 <View>
-                    <TouchableOpacity style={{width: '100%', height: 200}}
-                    onPress={() => navigation.navigate('Card-Details')}
-                    >
+                    <View style={{width: '100%',}}>
                         {checkDefaultTrue()}
-                    </TouchableOpacity>
+                    </View>
                     <View>
                         <ScrollView style={{overflow: 'hidden'}}>
                             <Text style={{padding: 10, fontSize: 18, fontWeight: 'bold'}}>Your Saved Cards</Text>
                             <ScrollView>
                                 {checkDefaultFalse()}
-                                <View>
-                                    <TouchableOpacity onPress={() => navigation.navigate('Card-Register')}>
-                                        <Text>Add</Text>
-                                    </TouchableOpacity>
-                                </View>
                             </ScrollView>
                             
                         </ScrollView>
@@ -238,28 +246,28 @@ const HomeScreen = () => {
                         <View style={styles.block2}>
                             {creditCardRender()}
                         </View>
-                        <View style={styles.block3}>
-                            {/* <RegisterCard /> */}
-                            <View style={styles.faceContainer}>
-                                <View style={styles.cardTop}>
-                                <TouchableOpacity onPress={() => navigation.navigate("Register")} style={styles.icon}>
-                                        <Icon 
-                                            name='add'
-                                            size={24}
-                                            color={'white'}
-                                        />
-                                    </TouchableOpacity>
-                                    <Text style={styles.text}>Add Face</Text>
-                                </View>
-                                <View style={styles.cardBottom}>
-                                        <ScrollView style ={styles.nameBox} showsVerticalScrollIndicator={false}>
-                                            {renderFace()}
-                                        </ScrollView>
-                                    
-                                </View>
-                            </View>
-
+                        
+                        <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                            <Text style={{padding: 10, fontSize: 18, fontWeight: 'bold'}}>Transaction Activity</Text>
+                            <TouchableOpacity onPress={() => navigation.navigate("History")}>
+                                <Text style={{paddingRight: 10, color: 'blue', fontSize:16}}>See all</Text>
+                            </TouchableOpacity>
                         </View>
+                        <View style={styles.transactionContainer}>
+                            {slicedTransactions.map((slicedTransactions) => (
+                                <TransactionCard
+                                    key={slicedTransactions.time}
+                                    userTransactions={slicedTransactions}
+                                    // onLinkPress={handleLinkPress}
+                                />
+                            ))}
+                        </View>
+                        
+                        <Text style={{padding: 10,fontSize: 18, fontWeight: 'bold', }}>Registered Faces</Text>
+                        <View style={styles.faceContainer}>
+                            {renderFace()}
+                        </View>
+                        {/* <FacesContainer /> */}
                     </ScrollView>
                 </View>
 
@@ -283,8 +291,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: 15,
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
     },
     image: {
         // backgroundColor: color.secondary,
@@ -299,7 +305,8 @@ const styles = StyleSheet.create({
     },
     body: {
         flex: 0.9,
-        padding: 10,
+        paddingLeft: 10,
+        paddingRight: 10,
         // backgroundColor: 'black'
     },
     bottom: {
@@ -309,13 +316,13 @@ const styles = StyleSheet.create({
         flex:0.8,
     },
     block2:{
-        paddingTop: 15,
+        paddingTop: 5,
         flex:0.2,
         // alignItems: 'center',
         // justifyContent: 'center',
     },
     block3:{
-        paddingTop: 15,
+        paddingTop: 5,
         flex:5,
         // alignItems: 'center',
         // justifyContent: 'center',
@@ -354,13 +361,20 @@ const styles = StyleSheet.create({
         backgroundColor: '#D6E3EF',
         borderRadius: 15,
       },
-      faceContainer:{
-        height:300,
-        width: '100%',
-        backgroundColor: color.secondary,
-        borderRadius: 18,
+      faceContainer: {
+        flex: 1,
         padding: 10,
-        overflow: 'scroll'
+        backgroundColor: '#f5f5f5',
+        borderRadius: 18,
+        width: '95%',
+        marginLeft: '2.5%',
+        // marginBottom: '1%'
+    },
+    faceContainerTitle: {
+        color: color.textDark,
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 10,
     },
     // body: {
     //     height: '100%',
@@ -394,6 +408,35 @@ const styles = StyleSheet.create({
         // overflow: 'scroll'
         // width: 10
     },
+    transactionContainer: {
+        backgroundColor: '#f5f5f5',
+        borderRadius: 18,
+        width: '95%',
+        marginLeft: '2.5%'
+    },
 });
 
 export default HomeScreen;
+
+
+// <View style={styles.block3}>
+//                             {/* <RegisterCard /> */}
+//                             <View style={styles.faceContainer}>
+//                                 <View style={styles.cardTop}>
+//                                 <TouchableOpacity onPress={() => navigation.navigate("Register")} style={styles.icon}>
+//                                         <Icon 
+//                                             name='add'
+//                                             size={24}
+//                                             color={'white'}
+//                                         />
+//                                 </TouchableOpacity>
+//                                 <Text style={styles.text}>Add Face</Text>
+//                                 </View>
+//                                 <View style={styles.cardBottom}>
+//                                         <ScrollView style ={styles.nameBox} showsVerticalScrollIndicator={false}>
+//                                             {renderFace()}
+//                                         </ScrollView>
+                                    
+//                                 </View>
+//                             </View>
+//                         </View>

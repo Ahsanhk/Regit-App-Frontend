@@ -28,6 +28,18 @@ import { ScrollView } from "react-native-gesture-handler";
 import DefaultCreditCard from "../components/defaultCreditCard";
 import { address } from "../components/networkAddress";
 import FaceNameCard from "../components/faceName";
+import TransactionCard from "../components/transactionCard";
+
+
+const Block = ({ iconName, title, onPress }) => {
+  return (
+    <TouchableOpacity style={styles.blockContainer} onPress={onPress}>
+      <Icon name={iconName} size={32} color="#333333" />
+      <Text style={styles.title}>{title}</Text>
+    </TouchableOpacity>
+  );
+};
+
 
 const CardDetailScreen = () => {
   const route = useRoute();
@@ -50,6 +62,32 @@ const CardDetailScreen = () => {
   const [cardFaces, setCardFaces] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedFaces, setSelectedFaces] = useState([]);
+  const [cardSettingsModalVisible, setCardSettingsModalVisible] = useState(false);
+  
+  const cardSettingsModal = (visibility) => {
+    setCardSettingsModalVisible(visibility);
+  };
+
+  const navigateToScreen = (screenName) => {
+    navigation.navigate(screenName);
+  };
+
+  const [userTransactions, setUserTransactions] = useState([]);
+    const transactionData = userTransactions.reverse();
+    const slicedTransactions = userTransactions.slice(0,4);
+
+    const fetchTransactions = async (username) => {
+        try {
+          const fetchUserTransactions = await axios.get(`http://${ip_address}/get-user-transactions/${username}`);
+          setUserTransactions(fetchUserTransactions.data.transaction);
+        } catch (error) {
+          console.error("Error fetching transaction history: ", error);
+        }
+    };
+    useEffect(() => {
+        const username = userData.username;
+        fetchTransactions(username);
+    },[])
 
   const handleSelectFace = async (faceId) => {
     const isFaceSelected = selectedFaces.some((face) => face.faceId === faceId);
@@ -67,6 +105,8 @@ const CardDetailScreen = () => {
       }
     }
   };
+
+
   // useEffect(() => {
   //   console.log("array: ", selectedFaces);
   // }, [selectedFaces]);
@@ -230,7 +270,8 @@ const CardDetailScreen = () => {
   const renderFace = () => {
     if (cardFaces.length === 0) {
       return <Text style={{ color: "white", fontSize: 18 }}>No faces</Text>;
-    } else {
+    } 
+    else {
       return (
         <View>
           {cardFaces.map((cardFaces, index) => (
@@ -304,115 +345,149 @@ const CardDetailScreen = () => {
           />
         </View>
 
-        <View style={styles.cardSettingsContainer}>
-          <Text
-            style={{
-              color: color.text,
-              fontSize: 20,
-              paddingBottom: 10,
-              fontWeight: "bold",
-            }}
-          >
-            Card Settings
-          </Text>
-          <View style={styles.cardOption}>
-            <Text>ATM Withdraws</Text>
-            <ToggleSwitch
-              isOn={toggleValue}
-              onColor="#81b0ff"
-              offColor="#767577"
-              labelStyle={{ color: 'black', fontWeight: '900' }}
-              size="medium"
-              onToggle={toggleSwitch}
-            />
-          </View>
-          <View style={styles.cardOption}>
-            <Text>Online Payment</Text>
-            <ToggleSwitch
-              isOn={onlinePaymentValue}
-              onColor="#81b0ff"
-              offColor="#767577"
-              labelStyle={{ color: 'black', fontWeight: '900' }}
-              size="medium"
-              onToggle={toggleOnlinePayment}
-            />
-          </View>
-          <View style={styles.cardOption}>
-            <Text>International Usage</Text>
-            <ToggleSwitch
-              isOn={intWithdrawals}
-              onColor="#81b0ff"
-              offColor="#767577"
-              labelStyle={{ color: 'black', fontWeight: '900' }}
-              size="medium"
-              onToggle={toggleIntWithdrawals}
-            />
-          </View>
-          <View style={styles.cardOption}>
-            <Text>Default Card</Text>
-            <ToggleSwitch
-              isOn={defaultValue}
-              onColor="#81b0ff"
-              offColor="#767577"
-              labelStyle={{ color: 'black', fontWeight: '900' }}
-              size="medium"
-              onToggle={toggleDefault}
-            />
-          </View>
+        <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', padding: 10, marginTop: '2%'}}>
+          <Block
+            iconName="face-retouching-natural"
+            title="Manage Faces"
+            onPress={handleUpdatePress}
+          />
+          <Block
+            iconName="account-circle"
+            title="Profile"
+            onPress={() => navigateToScreen('Profile')}
+          />
+          <Block
+            iconName="settings"
+            title="Card Settings"
+            onPress={() => cardSettingsModal(true)}
+          />
+        </View>
+        
+        <View style={styles.containerBody}>
+            <Text style={{padding: 10, fontSize: 18, fontWeight: 'bold'}}>Transaction Activity</Text>
+            <TouchableOpacity onPress={() => navigation.navigate("History")}>
+                <Text style={{paddingRight: 10, color: 'blue', fontSize:16}}>See all</Text>
+            </TouchableOpacity>
+        </View>
+        <View style={styles.transactionContainer}>
+            {slicedTransactions.map((slicedTransactions) => (
+                <TransactionCard
+                    key={slicedTransactions.time}
+                    userTransactions={slicedTransactions}
+                    // onLinkPress={handleLinkPress}
+                />
+            ))}
+        </View>
+
+        <View style={styles.containerBody}>
+            <Text style={{padding: 10, fontSize: 18, fontWeight: 'bold'}}>Registered Faces</Text>
+                
+            <TouchableOpacity onPress={handleUpdatePress}>
+                <Text style={{paddingRight: 10, color: 'blue', fontSize:16}}>Update</Text>
+            </TouchableOpacity>
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => {
+                  setModalVisible(!modalVisible);
+                }}
+              >
+                <View style={styles.modalContainer}>
+                  <View style={styles.modalContent}>
+                    <ScrollView
+                      style={styles.nameBox}
+                      showsVerticalScrollIndicator={false}
+                    >
+                      {renderFaceCards()}
+                    </ScrollView>
+
+                    <TouchableOpacity onPress={updateCardFaces}>
+                      <Text>Confirm</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setModalVisible(false);
+                        setSelectedFaces([]);
+                      }}
+                    >
+                      <Text>Cancel</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Modal>
         </View>
         <View style={styles.faceContainer}>
-          <View style={styles.cardTop}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Register")}
-              style={styles.icon}
-            >
-              <Icon name="add" size={24} color={"white"} />
-            </TouchableOpacity>
-            <Text style={styles.text}>Add Face</Text>
-            <TouchableOpacity onPress={handleUpdatePress}>
-              <Text style={styles.text}>Update</Text>
-            </TouchableOpacity>
-            <Modal
-              animationType="slide"
-              transparent={true}
-              visible={modalVisible}
-              onRequestClose={() => {
-                setModalVisible(!modalVisible);
-              }}
-            >
-              <View style={styles.modalContainer}>
-                <View style={styles.modalContent}>
-                  <ScrollView
-                    style={styles.nameBox}
-                    showsVerticalScrollIndicator={false}
-                  >
-                    {renderFaceCards()}
-                  </ScrollView>
+            {renderFace()}
+        </View>
 
-                  <TouchableOpacity onPress={updateCardFaces}>
-                    <Text>Confirm</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => {
-                      setModalVisible(false);
-                      setSelectedFaces([]);
-                    }}
-                  >
-                    <Text>Cancel</Text>
-                  </TouchableOpacity>
+        {/* <View style={styles.cardSettingsContainer}> */}
+        <Modal
+        visible={cardSettingsModalVisible}
+        animationType="slide"
+        transparent={true}
+        >
+          <View style={styles.modalContainer}>
+          <View style={styles.modalContentSettings}>
+              <Text
+                style={{padding: 5, fontSize: 18, fontWeight: 'bold'}}
+              >
+                Card Settings
+              </Text>
+              <View style={{width: '95%',marginLeft:'2.5%',backgroundColor: '#f5f5f5', padding: 5, borderRadius: 18 }}>
+                <View style={styles.cardOption}>
+                  <Text>ATM Withdraws</Text>
+                  <ToggleSwitch
+                    isOn={toggleValue}
+                    onColor="#81b0ff"
+                    offColor="#767577"
+                    labelStyle={{ color: 'black', fontWeight: '900' }}
+                    size="medium"
+                    onToggle={toggleSwitch}
+                  />
+                </View>
+                <View style={styles.cardOption}>
+                  <Text>Online Payment</Text>
+                  <ToggleSwitch
+                    isOn={onlinePaymentValue}
+                    onColor="#81b0ff"
+                    offColor="#767577"
+                    labelStyle={{ color: 'black', fontWeight: '900' }}
+                    size="medium"
+                    onToggle={toggleOnlinePayment}
+                  />
+                </View>
+                <View style={styles.cardOption}>
+                  <Text>International Usage</Text>
+                  <ToggleSwitch
+                    isOn={intWithdrawals}
+                    onColor="#81b0ff"
+                    offColor="#767577"
+                    labelStyle={{ color: 'black', fontWeight: '900' }}
+                    size="medium"
+                    onToggle={toggleIntWithdrawals}
+                  />
+                </View>
+                <View style={styles.cardOption}>
+                  <Text>Default Card</Text>
+                  <ToggleSwitch
+                    isOn={defaultValue}
+                    onColor="#81b0ff"
+                    offColor="#767577"
+                    labelStyle={{ color: 'black', fontWeight: '900' }}
+                    size="medium"
+                    onToggle={toggleDefault}
+                  />
                 </View>
               </View>
-            </Modal>
-          </View>
-          <View style={styles.cardBottom}>
-            <ScrollView
-              style={styles.nameBox}
-              showsVerticalScrollIndicator={false}
-            >
-              {renderFace()}
-            </ScrollView>
-          </View>
-        </View>
+              <TouchableOpacity onPress={() => cardSettingsModal(false)} style={{}}>
+                  <Text style={{ marginTop: 10, color: 'blue', marginLeft: '80%', fontSize: 16 }}>Close</Text>
+              </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+        {/* </View> */}
+        
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={() => deleteCard()}>
@@ -481,19 +556,19 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   faceContainer: {
-    flex: 0.1,
-    height: 250,
-    width: "100%",
-    backgroundColor: color.secondary,
-    borderRadius: 18,
+    flex: 1,
     padding: 10,
-    overflow: "scroll",
+    backgroundColor: '#f5f5f5',
+    borderRadius: 18,
+    width: '95%',
+    marginLeft: '2.5%',
+    // marginBottom: '1%'
   },
   icon: {
     paddingTop: 10,
   },
   text: {
-    color: color.icon,
+    color: 'blue',
     padding: 10,
   },
   cardTop: {
@@ -520,12 +595,18 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    backgroundColor: "white",
+    backgroundColor: "#f5f5f5",
     padding: 20,
     borderRadius: 10,
     width: "80%",
     // maxHeight: '80%',
     // overflow: 'scroll',
+  },
+  modalContentSettings: {
+    backgroundColor: "#f5f5f5",
+    padding: 10,
+    borderRadius: 10,
+    width: "80%",
   },
   faceCard: {
     borderWidth: 1,
@@ -559,6 +640,41 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#A9A9A9',
+  },
+  transactionContainer: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 18,
+    width: '95%',
+    marginLeft: '2.5%'
+},
+containerBody: {
+  display: 'flex', 
+  flexDirection: 'row', 
+  alignItems: 'center', 
+  justifyContent: 'space-between', 
+  marginTop:10
+},
+  blockContainer: {
+    borderRadius: 10,
+    alignItems: 'center',
+    height: 100,
+    width: 100,
+    backgroundColor: '#f5f5f5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 1,
+  },
+  title: {
+    fontSize: 14,
+    marginTop: 8,
+    textAlign: 'center',
   },
 });
 

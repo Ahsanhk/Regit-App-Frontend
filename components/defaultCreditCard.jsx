@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#1a6fa3',
         borderRadius: 18,
         // padding: 25,
-        opacity: 0.8
+        opacity: 0.8,
     },
     body: {
         height: '100%',

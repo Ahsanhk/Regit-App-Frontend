@@ -18,7 +18,7 @@ const TransactionCard = ({userTransactions, onLinkPress}) => {
                     <Text style={styles.date}></Text>
                     <Text style={styles.name}>{userTransactions.time}</Text>
                   </View>
-                  <View>
+                  <View style={{alignItems: 'center'}}>
                     <AntIcon 
                         name = "checkcircle"
                         size = {24}
@@ -44,7 +44,7 @@ const TransactionCard = ({userTransactions, onLinkPress}) => {
                     <Text style={styles.date}></Text>
                     <Text style={styles.name}>{userTransactions.time}</Text>
                   </View>
-                  <View>
+                  <View style={{alignItems: 'center'}}>
                     <AntIcon 
                         name = "exclamationcircle"
                         size = {24}
@@ -116,19 +116,18 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 16,
+        padding: 5,
         borderBottomWidth: 1,
         borderBottomColor: '#ddd',
         marginLeft: 10,
         marginRight:10,
-        // backgroundColor:'yellow'
     },
     transactionContainerFalse: {
         // backgroundColor: '#fadedf',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 16,
+        padding: 5,
         borderBottomWidth: 1,
         borderBottomColor: '#ddd',
         marginLeft: 10,
@@ -144,7 +143,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 16,
         fontWeight: 'bold',
-        marginBottom: 4,
+        // marginBottom: 4,
     },
     date: {
         fontSize: 12,
