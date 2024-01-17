@@ -1,6 +1,4 @@
 import React, { createContext, useContext, useState } from 'react';
-import {ToastAndroid} from 'react-native';
-import FaceNameCard from './faceName';
 import axios from 'axios';
 import { address } from './networkAddress';
 

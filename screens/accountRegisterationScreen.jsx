@@ -12,23 +12,23 @@ const AccountRegisterationScreen = () => {
 
     const navigation = useNavigation();
     const route = useRoute();
+    const ip_address = address.ip_address;
 
     const [errors, setErrors] = useState({});
     const [username, setUsername] = useState('');
-    const [pincode, setPincode] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     
-    const handleRegister = async () => {
 
-        const userInfo = route.params?.userInfo || {};
-        // console.log('Sending data:', userInfo);
-        const userData = {
-            ...userInfo,
-            username,
-            pincode,
-            password,
-        };
+    const userInfo = route.params?.userInfo || {};
+    // console.log('Sending data:', userInfo);
+    const userData = {
+        ...userInfo,
+        username,
+        password,
+    };
+
+    const handleRegister = async () => {
 
         const ip_address = address.ip_address;
 
@@ -39,13 +39,7 @@ const AccountRegisterationScreen = () => {
           } else if (username.length < 4) {
             newErrors.username = 'Username must be at least 4 characters';
           }
-      
-          if (!pincode.trim()) {
-            newErrors.pincode = 'Pincode is required';
-          } else if (!/^\d{4}$/.test(pincode)) {
-            newErrors.pincode = 'Pincode must be a 4-digit number';
-          }
-      
+    
           if (!password.trim()) {
             newErrors.password = 'Password is required';
           } else if (password.length < 6) {
@@ -61,54 +55,53 @@ const AccountRegisterationScreen = () => {
           if (Object.keys(newErrors).length > 0) {
             return;
           }
+
+          const mobileNumber = userData.mobileNumber;
         
+          const isTaken = checkUsername(userData);
+          // console.log("return",isTaken)
+        };
 
-        // console.log('Sending data:', userData);
-        // navigation.navigate('Login', {userData});
-        // const mobileNumber = userData.mobileNumber
-        
-        try {
-            const response = await axios.post(`http://${ip_address}/generate-otp`, {
-              mobileNumber: userData.mobileNumber,
-            });
+          const checkUsername = async (userData) => {
+            const username = userData.username;
+            const mobileNumber = userData.mobileNumber;
 
-            console.log(userData.mobileNumber)
+            try{
+              const response = await axios.get(`http://${ip_address}/check-username/${username}`);
 
-            const actualOtp = response.data;
-
-            console.log(actualOtp);
-            if (response) {
-              navigation.navigate('OTP', {actualOtp, userData});
-            } 
-            else {
-              setError('Failed to generate OTP. Please try again.');
+              console.log(response.data.isTaken);
+              
+              if(response.data.isTaken){
+                ToastAndroid.show('username already taken', ToastAndroid.SHORT);
+              }
+              else{
+                generateOTP(mobileNumber);
+              }
             }
-          } 
-          catch (error) {
-            console.log('An error occurred. Please try again later.', error);
+            catch(error){
+              console.error("error checking username: ", error);
+            }
           }
 
+          const generateOTP = async(mobileNumber) =>{
+            try{
+              const response = await axios.post(`http://${ip_address}/generate-otp`, {
+                    mobileNumber
+                  });              
 
-
-
-        // try {
-        //     const response = await axios.post('http://192.168.50.75:8000/signup/', userData);
-
-        //     if(response.status == 200){
-        //         // const responseBody = await response.json();
-        //         // const userId = responseBody.user_id;
-        //         navigation.navigate('MobilePhone');
-        //     }
-        //     else{
-        //         const responseBody = await response.text();
-        //         console.error('Failed to register user. Status:', response.status);
-        //         console.error('Response Body:', responseBody);
-        //     }
-        // } 
-        // catch (error) {
-        //     console.error('Data not sent:', error.message);
-        // }
-    };
+              console.log(response.data);
+              const otpId = response.data.otpId;
+              if (response) {
+                navigation.navigate('OTP', {otpId ,userData});
+              } 
+              else {
+                console.log('Failed to generate OTP. Please try again.');
+              }
+            }
+            catch(error){
+              console.error("error generating otp", error)
+            }
+          }
 
 
   return (
@@ -154,17 +147,6 @@ const AccountRegisterationScreen = () => {
                 onChangeText={(text) => setUsername(text)}
             />
             {errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
-            <TextInput
-                style={styles.input}
-                placeholder= '****'
-                keyboardType="numeric"
-                maxLength={4}
-                secureTextEntry={true}
-                placeholderTextColor={color.placeholderText}
-                value={pincode}
-                onChangeText={(text) => setPincode(text)}
-            />
-            {errors.pincode && <Text style={styles.errorText}>{errors.pincode}</Text>}
             <TextInput
                 style={styles.input}
                 placeholder= 'password'
@@ -223,6 +205,8 @@ const styles = StyleSheet.create({
         color: color.text,
         padding: 18,
         borderRadius: 15,
+        borderWidth: 1,
+        borderColor: 'lightgray',
         marginTop: 30,
         fontSize: 16,
     },

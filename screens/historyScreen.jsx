@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet,  TouchableOpacity, Image, TextInput, ToastAndroid, Linking} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 // import Icon from 'react-native-vector-icons/Entypo';
-import DatePicker from 'react-native-datepicker';
-import DateTimePicker from '@react-native-community/datetimepicker';
+// import DatePicker from 'react-native-datepicker';
+// import DateTimePicker from '@react-native-community/datetimepicker';
 
 import Container from '../components/background';
 import { color } from '../components/color';
@@ -17,11 +17,11 @@ import axios from 'axios';
 import { address } from '../components/networkAddress';
 
 const HistoryScreen = () => {
-    const [selectedStartDate, setSelectedStartDate] = useState('');
-    const [selectedEndDate, setSelectedEndDate] = useState('');
+    // const [selectedStartDate, setSelectedStartDate] = useState('');
+    // const [selectedEndDate, setSelectedEndDate] = useState('');
     const [selectedVideo, setSelectedVideo] = useState(null);
     const { userData} = useAppContext();
-    const [userTransactions, setUserTransactions] = useState([]);
+    // const [userTransactions, setUserTransactions] = useState([]);
 
     const ip_address = address.ip_address;
 
@@ -36,10 +36,14 @@ const HistoryScreen = () => {
         }
     };
 
-    useEffect(() => {
-        const username = userData.username;
-        fetchTransactions(username);
-    },[])
+    // useEffect(() => {
+    //     const username = userData.username;
+    //     fetchTransactions(username);
+    // },[])
+
+    
+  const route = useRoute();
+  const { userTransactions } = route.params;
 
     const handleLinkPress = async (videoURL) => {
         try {
@@ -58,6 +62,23 @@ const HistoryScreen = () => {
         }
       };
     
+    const itemsPerPage = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+
+  const visibleTransactions = userTransactions.slice(startIndex, endIndex);
+
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => prevPage + 1);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
+  };
 
     return(
         <Container>
@@ -80,14 +101,23 @@ const HistoryScreen = () => {
                 />
             </View>
             <ScrollView>
-            {userTransactions.map((userTransactions) => (
+            {visibleTransactions.map((userTransactions) => (
                 <TransactionCard
-                    key={userTransactions.time}
+                    key={userTransactions._id}
                     userTransactions={userTransactions}
-                    onLinkPress={handleLinkPress}
+                    onLinkPress={() => handleLinkPress(userTransactions.videoURL)}
                 />
             ))}
             </ScrollView>
+            <View style={styles.paginationContainer}>
+                <TouchableOpacity onPress={handlePrevPage}>
+                <Text style={styles.paginationButton}>{'<'}</Text>
+                </TouchableOpacity>
+                <Text style={styles.paginationText}>{currentPage}</Text>
+                <TouchableOpacity onPress={handleNextPage}>
+                <Text style={styles.paginationButton}>{'>'}</Text>
+                </TouchableOpacity>
+            </View>
         </Container>
     )
 }
@@ -172,6 +202,21 @@ const styles = StyleSheet.create({
         textDecorationLine: 'underline',
         marginTop: 10,
     },
+    paginationContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 10,
+      },
+      paginationButton: {
+        fontSize: 20,
+        color: '#007AFF',
+        marginHorizontal: 10,
+      },
+      paginationText: {
+        fontSize: 16,
+        marginHorizontal: 10,
+      },
 })
 
 

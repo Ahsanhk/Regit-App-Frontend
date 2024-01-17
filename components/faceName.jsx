@@ -12,6 +12,7 @@ const FaceNameCard = ({faceName, face_id, fetchImages}) => {
     const [isTrayVisible, setIsTrayVisible] = useState(false);
     const [updatedName, setUpdatedName] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
     const ip_address = address.ip_address;
     
@@ -24,14 +25,17 @@ const FaceNameCard = ({faceName, face_id, fetchImages}) => {
       };
     
       const deleteItem = async () => {
-        try{
+        setIsDeleteModalVisible(true);
+      };
+
+      const handleDeleteConfirm = async () => {
+        try {
           const response = await axios.post(`http://${ip_address}/delete-face-name`, { face_id });
-          // console.log(response.data);
           fetchImages(user_id);
-          ToastAndroid.show('face deleted successfully', ToastAndroid.SHORT)
-        }
-        catch(error){
-          console.error("error deleting card: ", error)
+          setIsDeleteModalVisible(false);
+          ToastAndroid.show('Face deleted successfully', ToastAndroid.SHORT);
+        } catch (error) {
+          console.error("Error deleting face: ", error);
         }
       };
 
@@ -56,6 +60,10 @@ const FaceNameCard = ({faceName, face_id, fetchImages}) => {
         }
       };
 
+      const handleDeleteCancel = () => {
+        setIsDeleteModalVisible(false);
+      };
+
 
     return(
     <View style={styles.container}>
@@ -67,28 +75,23 @@ const FaceNameCard = ({faceName, face_id, fetchImages}) => {
         
           {!isTrayVisible && (
             <TouchableOpacity onPress={toggleTrayVisibility}>
-                <Icon name="chevron-left" size={24} color="black" />
+                <Icon name="chevron-left" size={24} color={color.secondary} />
             </TouchableOpacity>
             )}
-            {/* {isTrayVisible && (
-            <TouchableOpacity onPress={toggleTrayVisibility}>
-                <Icon name="chevron-right" size={24} color="white" />
-            </TouchableOpacity>
-            )} */}
         
         <View style={{alignContent: 'flex-end'}}>
         {isTrayVisible && (
           <View style={styles.tray}>
             <TouchableOpacity onPress={deleteItem}>
               <View style={styles.trayOption}>
-                <Icon name="delete" size={24} color="black" />
+                <Icon name="delete" size={24} color="red" />
                 {/* <Text>Delete</Text> */}
               </View>
             </TouchableOpacity>
   
             <TouchableOpacity onPress={() => setIsModalVisible(true)}>
               <View style={styles.trayOption}>
-                <Icon name="square-edit-outline" size={24} color="black" />
+                <Icon name="square-edit-outline" size={24} color= {color.secondary} />
                 {/* <Text>Rename</Text> */}
               </View>
             </TouchableOpacity>
@@ -100,26 +103,47 @@ const FaceNameCard = ({faceName, face_id, fetchImages}) => {
             >
               <View style={styles.modalContainer}>
                 <View style={styles.modalContent}>
+                  <Text style={{fontSize: 16, fontWeight: 'bold', marginBottom: '5%'}}>Enter Updated Name</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="Enter Updated Name"
                     onChangeText={(text) => setUpdatedName(text)}
                   />
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <TouchableOpacity style={styles.button} onPress={() => setIsModalVisible(false)}>
-                        <Text style={{color: '#dedfe0', fontSize:16,}}>Cancel</Text>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between',padding: 10, }}>
+                    <TouchableOpacity style={{}} onPress={() => setIsModalVisible(false)}>
+                        <Text style={{color: 'blue', fontSize:16,}}>Cancel</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} onPress={renameItem}>
-                        <Text style={{color: '#dedfe0', fontSize:16,}}>Submit</Text>
+                    <TouchableOpacity style={{}} onPress={renameItem}>
+                        <Text style={{color: 'blue', fontSize:16,}}>Submit</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
               </View>
             </Modal>
+            <Modal
+            visible={isDeleteModalVisible}
+            transparent={true}
+            animationType="slide"
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalDeleteContent}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: '15%', }}>
+                  Are you sure you want to delete this face?
+                </Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10, borderTopColor: 'lightgray', borderTopWidth:1 }}>
+                  <TouchableOpacity style={{}} onPress={handleDeleteCancel}>
+                    <Text style={{ color: 'blue', fontSize: 18 }}>No</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={{}} onPress={handleDeleteConfirm}>
+                    <Text style={{ color: 'blue', fontSize: 18 }}>Yes</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
   
             <TouchableOpacity onPress={toggleTrayVisibility}>
               <View style={styles.trayOption}>
-                <Icon name="cancel" size={24} color="black" />
+                <Icon name="cancel" size={24} color={color.secondary} />
                 {/* <Text>Cancel</Text> */}
               </View>
             </TouchableOpacity>
@@ -173,20 +197,30 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      height: 300,
     },
     modalContent: {
-      backgroundColor: 'white',
+      height: 200,
+      backgroundColor: '#f5f5f5',
       padding: 20,
       borderRadius: 10,
-      width: '80%',
+      width: '90%',
     },
     input: {
-      height: 40,
+      height: 50,
+      // width: '80%',
       borderColor: 'gray',
       borderWidth: 1,
       marginBottom: 20,
-      paddingHorizontal: 10,
+      // paddingHorizontal: 10,
       borderRadius: 15
+    },
+    modalDeleteContent: {
+      height: 150,
+      backgroundColor: '#f5f5f5',
+      padding: 20,
+      borderRadius: 10,
+      width: '70%',
     },
     button: {
       justifyContent: 'center',

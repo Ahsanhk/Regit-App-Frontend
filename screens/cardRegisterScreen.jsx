@@ -8,6 +8,7 @@ import Container from '../components/background';
 import { color } from '../components/color';
 import { useAppContext } from '../components/authProvider';
 import { address } from '../components/networkAddress';
+import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 
 const CardRegistrationScreen = () => {
   const navigation = useNavigation();
@@ -18,7 +19,7 @@ const CardRegistrationScreen = () => {
   const [banksList] = useState([
     'Allied Bank',
     'Habib Bank',
-    'Al-Habib',
+    'Al Habib',
     'Meezan Bank',
     'UBL',
     'Habib Metro',
@@ -156,29 +157,35 @@ const CardRegistrationScreen = () => {
       </View>
 
       <View style={styles.content}>
-        <TextInput
-          style={styles.input}
-          placeholder="Bank Name"
-          placeholderTextColor={color.placeholderText}
-          value={bankName}
-          onChangeText={handleBankNameChange}
-        />
-        {filteredBanks.length > 0 && (
-          <View style={styles.dropdownContainer}>
-            <FlatList
-              showsVerticalScrollIndicator={false}
-              data={filteredBanks}
-              renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => selectBank(item)}>
-                  <Text style={styles.dropdownItem}>{item}</Text>
-                </TouchableOpacity>
-              )}
-              keyExtractor={(item) => item.toString()}
-            />
-          </View>
-        )}
-        {errors.bankName && <Text style={styles.errorText}>{errors.bankName}</Text>}
-
+        <View>
+          <Text style={{fontSize: 14, fontWeight: 'bold', marginTop: '5%', marginLeft: '2%'}}>Bank Name</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Bank Name"
+            placeholderTextColor={color.placeholderText}
+            value={bankName}
+            onChangeText={handleBankNameChange}
+          />
+        </View>
+        <View>
+          {filteredBanks.length > 0 && (
+            <View style={styles.dropdownContainer}>
+              <FlatList
+                showsVerticalScrollIndicator={false}
+                data={filteredBanks}
+                renderItem={({ item }) => (
+                  <TouchableOpacity onPress={() => selectBank(item)}>
+                    <Text style={styles.dropdownItem}>{item}</Text>
+                  </TouchableOpacity>
+                )}
+                keyExtractor={(item) => item.toString()}
+              />
+            </View>
+          )}
+          {errors.bankName && <Text style={styles.errorText}>{errors.bankName}</Text>}
+        </View>
+        
+        <Text style={{fontSize: 14, fontWeight: 'bold', marginTop: '5%', marginRight: '60%'}}>Card number</Text>
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           {Array.from(Array(4)).map((_, index) => (
             <TextInput
@@ -193,19 +200,22 @@ const CardRegistrationScreen = () => {
           ))}
         </View>
           {errors.cardNumbers && <Text style={styles.errorText}>{errors.cardNumbers}</Text>}
+          <View>
+            <Text style={{fontSize: 14, fontWeight: 'bold', marginTop: '2%', marginLeft: '2.5%'}}>Pincode</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Pincode"
+              placeholderTextColor={color.placeholderText}
+              value={pincode}
+              onChangeText={(text) => setPincode(text)}
+              secureTextEntry 
+              keyboardType="numeric" 
+              maxLength={4}
+            />
+            {errors.pincode && <Text style={styles.errorText}>{errors.pincode}</Text>}
+          </View>
           
-          <TextInput
-            style={styles.input}
-            placeholder="Pincode"
-            placeholderTextColor={color.placeholderText}
-            value={pincode}
-            onChangeText={(text) => setPincode(text)}
-            secureTextEntry 
-            keyboardType="numeric" 
-            maxLength={4}
-          />
-          {errors.pincode && <Text style={styles.errorText}>{errors.pincode}</Text>}
-
+          <Text style={{fontSize: 14, fontWeight: 'bold', marginTop: '2%', marginRight: '65%'}}>Issue Date</Text>
           <TextInput
             style={styles.input}
             placeholder="Issue Date"
@@ -233,7 +243,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     flex: 0.1,
-    marginTop: '10%',
+    marginTop: '5%',
     paddingLeft: '10%',
     paddingRight: '10%',
     justifyContent: 'center',
@@ -245,11 +255,11 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: color.input,
-    width: '85%',
+    width: responsiveWidth(85),
     color: color.text,
-    padding: 18,
+    padding: 15,
     borderRadius: 15,
-    marginTop: 30,
+    marginTop: '2%',
     fontSize: 16,
     borderWidth: 1,
     borderColor: 'lightgray',
@@ -259,6 +269,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button: {
+    marginTop: '20%',
     justifyContent: 'center',
     alignItems: 'center',
     height: '25%',
@@ -278,7 +289,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
     backgroundColor: 'white',
     width: '100%',
-    maxHeight: 250,
+    maxHeight: responsiveHeight(25),
     borderWidth: 1,
     borderColor: 'lightgray',
     marginTop: 5,

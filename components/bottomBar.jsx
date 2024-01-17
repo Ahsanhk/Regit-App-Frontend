@@ -2,7 +2,9 @@ import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import CommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { color } from './color';
+import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 
 const BottomBar = () => {
     const navigation = useNavigation();
@@ -37,9 +39,9 @@ const BottomBar = () => {
                 </TouchableOpacity>
 
                 
-                <TouchableOpacity style={styles.icons} onPress={() => navigation.navigate('History')}>
-                    <Icon name='history' size={24} color={color.icon} />
-                    <Text style={styles.iconText}>Transactions</Text>
+                <TouchableOpacity style={styles.icons} onPress={() => navigation.navigate('Cards')}>
+                    <Icon name='credit-card' size={24} color={color.icon} />
+                    <Text style={styles.iconText}>Cards</Text>
                 </TouchableOpacity>
 
                 
@@ -73,7 +75,7 @@ const BottomBar = () => {
                                 toggleOptions()
                                 } }>
                                 <View style={styles.iconContainer}>
-                                    <Icon name='credit-card' size={28} color="white" />
+                                    <CommunityIcon name='credit-card-plus' size={28} color="white" />
                                 </View>
                             </TouchableOpacity>
                         </Animated.View>
@@ -85,22 +87,23 @@ const BottomBar = () => {
                                 toggleOptions()
                                 }}>
                                 <View style={styles.iconContainer}>
-                                    <Icon name='face' size={28} color="white" />
+                                    <CommunityIcon name='face-recognition' size={28} color="white" />
                                 </View>
                             </TouchableOpacity>
                         </Animated.View>
                     </View>
                 )}
 
+                <TouchableOpacity style={styles.icons} onPress={() => navigation.navigate('Faces')}>
+                    <Icon name='face' size={24} color={color.icon} />
+                    <Text style={styles.iconText}>Faces</Text>
+                </TouchableOpacity>
+                
                 <TouchableOpacity style={styles.icons} onPress={() => navigation.navigate('User')}>
                     <Icon name='person' size={24} color={color.icon} />
                     <Text style={styles.iconText}>Profile</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.icons} onPress={() => navigation.navigate('Settings')}>
-                    <Icon name='settings' size={24} color={color.icon} />
-                    <Text style={styles.iconText}>Settings</Text>
-                </TouchableOpacity>
             </View>
         </View>
     );
@@ -117,7 +120,7 @@ const styles = StyleSheet.create({
         height: '100%',
         width: '100%',
         flexDirection: 'row',
-        justifyContent:'space-evenly',
+        justifyContent:'space-around',
         alignItems: 'center',
     },
     text: {
@@ -126,7 +129,7 @@ const styles = StyleSheet.create({
     },
     icons: {
         alignItems: 'center',
-        justifyContent: 'center',
+        // justifyContent: 'center',
     },
     centerIcon: {
         justifyContent: 'center',
@@ -137,10 +140,10 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
     circle: {
-        width: 65,
-        height: 65,
+        width: responsiveWidth(18),
+        height: responsiveHeight(9),
         borderRadius: 300,
-        marginRight: 10,
+        // marginRight: 10,
         backgroundColor: "#439ae0",
         justifyContent: 'center',
         alignItems: 'center',
@@ -160,8 +163,8 @@ const styles = StyleSheet.create({
     },
     iconContainer: {
         backgroundColor: '#439ae0', 
-        width: 40,
-        height: 40,
+        width: responsiveWidth(12),
+        height: responsiveHeight(6),
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',

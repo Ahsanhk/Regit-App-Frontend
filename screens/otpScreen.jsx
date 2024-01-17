@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import Container from '../components/background';
 import { color } from '../components/color';
 import axios from 'axios';
+import { address } from '../components/networkAddress';
 
 const OtpScreen = () => {
   const navigation = useNavigation();
@@ -13,24 +14,37 @@ const OtpScreen = () => {
   const [error, setError] = useState('');
   const route = useRoute();
 
-  const actualOtp = route.params
-  const userData = route.params
+  const ip_address = address.ip_address;
 
-//   console.log(actualOtp.actualOtp);
-//   console.log(otp);
+  const userData = route.params.userData
+  const otpId = route.params.otpId
 
-  const handleOtp = () => {
-    if(otp == actualOtp.actualOtp){
-      registerUser(userData);
+  const handleOtp = async () => {
+    const otpValData = {
+      otpId,
+      otp,
     }
-    else{
-        ToastAndroid.show('Incorrect otp',ToastAndroid.SHORT);
+    try{
+      console.log(otpValData)
+      const response = await axios.post(`http://${ip_address}/validate-otp`, otpValData);
+      console.log(response.data);
+      
+      if(response.data.isMatched){
+        registerUser();
+      }
+      else{
+          ToastAndroid.show('Incorrect otp',ToastAndroid.SHORT);
+      }
     }
+    catch(error){
+      console.error("error validating otp: ", error)
+    }
+
   }
 
-  const registerUser = async (userData) => {
+  const registerUser = async () => {
     try {
-          const response = await axios.post('http://192.168.100.8:8000/signup/', userData);
+          const response = await axios.post(`http://${ip_address}/register`, userData);
 
           if(response.status == 200){
             ToastAndroid.show('User registered successfully',ToastAndroid.SHORT);
@@ -47,12 +61,11 @@ const OtpScreen = () => {
       }
   }
 
-  const handleOtpInputChange = (text) => {
-    setOtp(text);
+  const handleOtpInputChange = (input) => {
+    setOtp(input);
   };
 
   const handleContinue = () => {
-    
     if (otp.length === 6) {
       ToastAndroid.show('User registered successfully', ToastAndroid.SHORT);
       navigation.navigate('Home');
@@ -73,15 +86,15 @@ const OtpScreen = () => {
         <Text style={{ color: color.text, fontSize: 22, fontWeight: 'bold' }}>Enter OTP</Text>
       </View>
       <View style={styles.content}>
-        <TextInput
-          style={styles.input}
-          placeholder='Enter OTP'
-          placeholderTextColor={color.placeholderText}
-          value={otp}
-          onChangeText={handleOtpInputChange}
-          keyboardType='numeric'
-          maxLength={6}
-        />
+      <TextInput
+        style={styles.input}
+        placeholder='Enter OTP'
+        placeholderTextColor={color.placeholderText}
+        value={otp}
+        onChangeText={setOtp}  
+        keyboardType='numeric'
+        maxLength={6}
+      />
         {error && <Text style={styles.errorText}>{error}</Text>}
       </View>
       <View style={styles.buttonBox}>

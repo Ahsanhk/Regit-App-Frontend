@@ -130,7 +130,7 @@ const UserRegisterationScreen = () => {
                 )}
                 <TextInput
                     style={styles.input}
-                    placeholder='mobile number'
+                    placeholder='mobile number (+92)'
                     placeholderTextColor={color.placeholderText}
                     value={userInfo.mobileNumber}
                     onChangeText={(text) => handleInputChange('mobileNumber', text)}
@@ -141,7 +141,7 @@ const UserRegisterationScreen = () => {
             </View>
             <View style={styles.buttonBox}>
                 <TouchableOpacity style={styles.button} onPress={navigateToAccountInfo}>
-                    <Text style={{ color: '#dedfe0', fontSize: 18, }} >Continue</Text>
+                    <Text style={{ color: color.icon, fontSize: 18, }} >Continue</Text>
                 </TouchableOpacity>
             </View>
         </Container>
@@ -173,18 +173,20 @@ const styles = StyleSheet.create({
         color: color.text,
         padding: 18,
         borderRadius: 15,
+        borderWidth: 1,
+        borderColor: 'lightgray',
         marginTop: 30,
         fontSize: 16,
     },
     buttonBox: {
-        justifyContent: 'flex-start',
+        justifyContent: 'center',
         alignItems: 'center'
     },
     button: {
         justifyContent: 'center',
         alignItems: 'center',
         height: '25%',
-        width: '40%',
+        width: '50%',
         backgroundColor: color.button,
         padding: 10,
         borderRadius: 15,

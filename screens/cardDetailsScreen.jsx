@@ -3,10 +3,9 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
-  Switch,
   TouchableOpacity,
   Modal,
+  ActivityIndicator,
 } from "react-native";
 import {
   useFocusEffect,
@@ -22,19 +21,18 @@ import ToggleSwitch from 'toggle-switch-react-native'
 import Container from "../components/background";
 import { color } from "../components/color";
 import { useAppContext } from "../components/authProvider";
-import CreditCard from "../components/creditCard";
-import BalanceCard from "../components/balanceCard";
 import { ScrollView } from "react-native-gesture-handler";
 import DefaultCreditCard from "../components/defaultCreditCard";
 import { address } from "../components/networkAddress";
 import FaceNameCard from "../components/faceName";
 import TransactionCard from "../components/transactionCard";
+import { responsiveFontSize, responsiveHeight } from "react-native-responsive-dimensions";
 
 
 const Block = ({ iconName, title, onPress }) => {
   return (
     <TouchableOpacity style={styles.blockContainer} onPress={onPress}>
-      <Icon name={iconName} size={32} color="#333333" />
+      <Icon name={iconName} size={32} color= {color.secondary} />
       <Text style={styles.title}>{title}</Text>
     </TouchableOpacity>
   );
@@ -62,7 +60,9 @@ const CardDetailScreen = () => {
   const [cardFaces, setCardFaces] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedFaces, setSelectedFaces] = useState([]);
+  const [userTransactions, setUserTransactions] = useState([]);
   const [cardSettingsModalVisible, setCardSettingsModalVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
   
   const cardSettingsModal = (visibility) => {
     setCardSettingsModalVisible(visibility);
@@ -72,21 +72,26 @@ const CardDetailScreen = () => {
     navigation.navigate(screenName);
   };
 
-  const [userTransactions, setUserTransactions] = useState([]);
-    const transactionData = userTransactions.reverse();
+    // const transactionData = userTransactions.reverse();
     const slicedTransactions = userTransactions.slice(0,4);
 
-    const fetchTransactions = async (username) => {
+    const fetchTransactions = async (card_id) => {
         try {
-          const fetchUserTransactions = await axios.get(`http://${ip_address}/get-user-transactions/${username}`);
-          setUserTransactions(fetchUserTransactions.data.transaction);
-        } catch (error) {
+          const response = await axios.get(`http://${ip_address}/get-user-transactions/${card_id}`);
+          setUserTransactions(response.data);
+        } 
+        catch (error) {
           console.error("Error fetching transaction history: ", error);
         }
+        finally{
+          setLoading(false);
+        }
     };
+
     useEffect(() => {
-        const username = userData.username;
-        fetchTransactions(username);
+      const card_id = cardDetails._id.$oid;
+        fetchTransactions(card_id);
+        // console.log("card details: ",cardDetails)
     },[])
 
   const handleSelectFace = async (faceId) => {
@@ -141,6 +146,7 @@ const CardDetailScreen = () => {
       );
       console.log("updated: ", response.data);
       setModalVisible(false);
+      navigation.navigate('Home')
       // await getCardData(user_id);
       // console.log("card details: ", cardData);
       fetchCardImages();
@@ -152,7 +158,6 @@ const CardDetailScreen = () => {
   useEffect(() => {
     const user_id = userData._id;
     if (cardDetails && cardDetails.activeStatus !== undefined) {
-      // console.log(cardDetails);
       setToggleValue(cardDetails.activeStatus);
       setOnlinePayementValue(cardDetails.onlineStatus);
       setIntWithdrawals(cardDetails.intStatus);
@@ -164,9 +169,10 @@ const CardDetailScreen = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      // fetchCardImages();
+      
     }, []),
   );
+
 
   const fetchImages = async (user_id) => {
     try {
@@ -178,7 +184,7 @@ const CardDetailScreen = () => {
       if (Array.isArray(response.data)) {
         setFaceImages(response.data);
       } else {
-        console.error("No user face images found");
+        // console.log("No user face images found");
         setFaceImages([]);
       }
     } catch (error) {
@@ -193,7 +199,7 @@ const CardDetailScreen = () => {
         `http://${ip_address}/extract-face-names`,
         { assignedFaces },
       );
-      console.log("updated data: ", response.data.faceNames);
+      // console.log("updated data: ", response.data.faceNames);
       setCardFaces(response.data.faceNames);
     } catch (error) {
       console.error("error fetching this card's user face Images: ", error);
@@ -267,9 +273,14 @@ const CardDetailScreen = () => {
     }
   };
 
+
   const renderFace = () => {
     if (cardFaces.length === 0) {
-      return <Text style={{ color: "white", fontSize: 18 }}>No faces</Text>;
+      return(
+        <View style={{height: responsiveHeight(20),justifyContent:'center', alignItems: 'center'}}>
+          <Text style={{fontSize: responsiveFontSize(2.5),}}>No faces added yet :(</Text>
+        </View>
+      )
     } 
     else {
       return (
@@ -287,6 +298,33 @@ const CardDetailScreen = () => {
     }
   };
 
+  function transactionRender() {
+    if (loading) {
+      return (
+        <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}>
+          <ActivityIndicator size="large" color="black" />
+        </View>
+      );
+    } else if (!userTransactions || userTransactions.length === 0) {
+      return (
+            <View style={{height: responsiveHeight(20),justifyContent:'center', alignItems: 'center'}}>
+                <Text style={{fontSize: 18,}}>No transaction activity :(</Text>
+            </View>
+      );
+    } else {
+      return (
+        <View>
+          {slicedTransactions.map((slicedTransactions) => (
+            <TransactionCard
+              key={slicedTransactions.time}
+              userTransactions={slicedTransactions}
+            />
+          ))}
+        </View>
+      );
+    }
+  }
+
   const renderFaceCards = () => {
     if (faceImages.length === 0) {
       return <Text>No faces</Text>;
@@ -294,22 +332,17 @@ const CardDetailScreen = () => {
       return (
         <View>
           {faceImages.map((face, index) => (
-            <TouchableOpacity
-              key={face._id}
-              onPress={() => handleSelectFace(face._id)}
-              style={[
-                styles.faceCard,
-                selectedFaces.some((faceObj) => faceObj.faceId === face._id) &&
-                  styles.selectedFace,
-              ]}
-            >
-              <FaceNameCard
-                key={face.faceName}
-                faceName={face.faceName}
-                face_id={face._id}
-                fetchImages={fetchImages}
-              />
-            </TouchableOpacity>
+              <TouchableOpacity
+                  key={face._id}
+                  onPress={() => handleSelectFace(face._id)}
+                  style={[
+                      styles.faceCard,
+                      selectedFaces.some((faceObj) => faceObj.faceId === face._id) &&
+                          styles.selectedFace,
+                  ]}
+              >
+                  <Text style={styles.faceName}>{face.faceName}</Text>
+              </TouchableOpacity>
           ))}
         </View>
       );
@@ -319,7 +352,7 @@ const CardDetailScreen = () => {
   return (
     <Container>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
+        <TouchableOpacity onPress={() => navigation.navigate("Home")}>
           <Icon name="arrow-back-ios" size={20} color="#dedfe0" />
         </TouchableOpacity>
         <Text
@@ -329,19 +362,17 @@ const CardDetailScreen = () => {
             paddingLeft: "25%",
           }}
         >
-          My Cards
+          Card Details
         </Text>
       </View>
 
       <ScrollView style={styles.scrollContainer}>
-        <View style={styles.balanceCardContainer}>
-          <BalanceCard balance={cardDetails.balance} />
-        </View>
         <View style={styles.creditCardContainer}>
           <DefaultCreditCard
             bankName={cardDetails.bankName}
             cardNumber={cardDetails.cardNumber}
-            updatedIssueDate={cardDetails.issueDate}
+            issuedate={cardDetails.issuedate}
+            balance={cardDetails.balance}
           />
         </View>
 
@@ -352,9 +383,9 @@ const CardDetailScreen = () => {
             onPress={handleUpdatePress}
           />
           <Block
-            iconName="account-circle"
-            title="Profile"
-            onPress={() => navigateToScreen('Profile')}
+            iconName="person"
+            title="Visit Profile"
+            onPress={() => navigateToScreen('User')}
           />
           <Block
             iconName="settings"
@@ -365,18 +396,12 @@ const CardDetailScreen = () => {
         
         <View style={styles.containerBody}>
             <Text style={{padding: 10, fontSize: 18, fontWeight: 'bold'}}>Transaction Activity</Text>
-            <TouchableOpacity onPress={() => navigation.navigate("History")}>
+            <TouchableOpacity onPress={() => navigation.navigate("History", {userTransactions: userTransactions})}>
                 <Text style={{paddingRight: 10, color: 'blue', fontSize:16}}>See all</Text>
             </TouchableOpacity>
         </View>
         <View style={styles.transactionContainer}>
-            {slicedTransactions.map((slicedTransactions) => (
-                <TransactionCard
-                    key={slicedTransactions.time}
-                    userTransactions={slicedTransactions}
-                    // onLinkPress={handleLinkPress}
-                />
-            ))}
+            {transactionRender()}
         </View>
 
         <View style={styles.containerBody}>
@@ -395,24 +420,26 @@ const CardDetailScreen = () => {
               >
                 <View style={styles.modalContainer}>
                   <View style={styles.modalContent}>
+                  <Text style={{fontSize: 16, fontWeight: 'bold', paddingBottom: 5}}>Choose faces(max 3)</Text>
                     <ScrollView
                       style={styles.nameBox}
                       showsVerticalScrollIndicator={false}
                     >
                       {renderFaceCards()}
                     </ScrollView>
-
-                    <TouchableOpacity onPress={updateCardFaces}>
-                      <Text>Confirm</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => {
-                        setModalVisible(false);
-                        setSelectedFaces([]);
-                      }}
-                    >
-                      <Text>Cancel</Text>
-                    </TouchableOpacity>
+                    <View style={styles.options}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          setModalVisible(false);
+                          setSelectedFaces([]);
+                        }}
+                      >
+                        <Text style={{fontSize: 16, color: '#2a21d1'}}>Cancel</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={updateCardFaces}>
+                        <Text style={{fontSize: 16, color: '#2a21d1',}}>Confirm</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
               </Modal>
@@ -423,9 +450,9 @@ const CardDetailScreen = () => {
 
         {/* <View style={styles.cardSettingsContainer}> */}
         <Modal
-        visible={cardSettingsModalVisible}
-        animationType="slide"
-        transparent={true}
+          visible={cardSettingsModalVisible}
+          animationType="slide"
+          transparent={true}
         >
           <View style={styles.modalContainer}>
           <View style={styles.modalContentSettings}>
@@ -481,7 +508,7 @@ const CardDetailScreen = () => {
                 </View>
               </View>
               <TouchableOpacity onPress={() => cardSettingsModal(false)} style={{}}>
-                  <Text style={{ marginTop: 10, color: 'blue', marginLeft: '80%', fontSize: 16 }}>Close</Text>
+                  <Text style={{ marginTop: 15, color: 'blue', marginLeft: '80%', fontSize: 18 }}>Close</Text>
               </TouchableOpacity>
               </View>
             </View>
@@ -511,12 +538,9 @@ const styles = StyleSheet.create({
     flex: 0.95,
     padding: 10,
   },
-  balanceCardContainer: {
-    flex: 0.1,
-    paddingTop: 10,
-  },
   creditCardContainer: {
     flex: 0.4,
+    height: responsiveHeight(26),
     paddingTop: 10,
     justifyContent: "center",
   },
@@ -542,18 +566,13 @@ const styles = StyleSheet.create({
   button: {
     justifyContent: "center",
     alignItems: "center",
-    // height: '25%',
+    height: responsiveHeight(7),
     width: "60%",
-    backgroundColor: "red",
+    backgroundColor: "#c43543",
     padding: 10,
     borderRadius: 15,
     marginTop: 50,
     marginBottom: 50,
-  },
-  errorText: {
-    color: "red",
-    fontSize: 14,
-    marginTop: 5,
   },
   faceContainer: {
     flex: 1,
@@ -571,28 +590,24 @@ const styles = StyleSheet.create({
     color: 'blue',
     padding: 10,
   },
-  cardTop: {
-    height: "100%",
-    flex: 2,
-    flexDirection: "row",
-    alignContent: "center",
-    // backgroundColor:'blue',
-  },
-  cardBottom: {
-    flex: 8,
-    backgroundColor: color.box,
-    borderBottomRightRadius: 18,
-    borderBottomLeftRadius: 18,
-  },
   nameBox: {
-    paddingLeft: "4%",
-    paddingTop: "5%",
+    padding: 10,
+    height: responsiveHeight(27),
+  },
+  options: {
+    paddingTop:10,
+    borderTopWidth: 1,
+    borderTopColor: 'lightgray',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    // paddingTop: 10,
   },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.1)",
   },
   modalContent: {
     backgroundColor: "#f5f5f5",
@@ -611,9 +626,12 @@ const styles = StyleSheet.create({
   faceCard: {
     borderWidth: 1,
     borderColor: "#ccc",
-    padding: 10,
+    padding: 20,
     margin: 5,
     borderRadius: 8,
+  },
+  faceName: {
+    fontSize: 16
   },
   selectedFace: {
     borderColor: "blue",
@@ -626,21 +644,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'lightgrey',
   },
-  toggle: {
-    transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }],
-  },
-  switchTrack: {
-    borderRadius: 15,
-    backgroundColor: '#A9A9A9',
-  },
-  switchThumb: {
-    width: 25,
-    height: 25,
-    borderRadius: 12.5,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#A9A9A9',
-  },
   transactionContainer: {
     backgroundColor: '#f5f5f5',
     borderRadius: 18,
@@ -652,13 +655,13 @@ containerBody: {
   flexDirection: 'row', 
   alignItems: 'center', 
   justifyContent: 'space-between', 
-  marginTop:10
+  marginTop:responsiveHeight(1),
 },
   blockContainer: {
     borderRadius: 10,
     alignItems: 'center',
-    height: 100,
-    width: 100,
+    height: responsiveHeight(12),
+    width: responsiveHeight(13),
     backgroundColor: '#f5f5f5',
     justifyContent: 'center',
     alignItems: 'center',
@@ -672,8 +675,8 @@ containerBody: {
     elevation: 1,
   },
   title: {
-    fontSize: 14,
-    marginTop: 8,
+    fontSize: responsiveFontSize(1.7),
+    marginTop: responsiveHeight(1),
     textAlign: 'center',
   },
 });

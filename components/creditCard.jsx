@@ -1,30 +1,22 @@
 import React from 'react';
 import { View, Text, StyleSheet, ImageBackground } from 'react-native';
 import { color } from './color';
+import { responsiveFontSize, responsiveHeight } from 'react-native-responsive-dimensions';
 
 const CreditCard = (cardData) => {
     const cardNumber = cardData.cardNumber;
-    const formattedCardNumber = cardNumber.match(/.{1,4}/g).join('  ');
-
-
-    const generateRandomColor = () => {
-        const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`; // Generates a random hexadecimal color
-        return randomColor;
-      };
-
-    // console.log("data in credit card: ", cardData)
+    const maskedCardNumber = cardNumber.replace(/.(?=.{4})/g, '*');
+    const formattedCardNumber = maskedCardNumber.match(/.{1,4}/g).join('   ');
 
     return(
     <ImageBackground 
         source={require('../bg_dblue.png')}
-        // style={styles.container}
         imageStyle={styles.container}
     >
         <View style={styles.body}>
-            
             <Text style={styles.text}>{cardData.bankName}</Text>
             <Text style={styles.text}>{formattedCardNumber}</Text>
-            <Text style={styles.text}>Valid Thru {'\n'} {cardData.updatedIssueDate}</Text>
+            <Text style={styles.text}>Valid Thru {'\n'} {cardData.issuedate}</Text>
         </View>
     </ImageBackground>
     );
@@ -32,7 +24,7 @@ const CreditCard = (cardData) => {
 
 const styles = StyleSheet.create({
     container:{
-        height: 120,
+        height: responsiveHeight(16),
         width: '100%',
         backgroundColor: color.secondary,
         borderRadius: 18,
@@ -45,10 +37,9 @@ const styles = StyleSheet.create({
         paddingLeft: 5
     },
     text: {
-        color:'white',
+        color:'#f5f5f5',
         padding: 10,
-        fontSize: 12,
-        // fontWeight: 'bold'
+        fontSize: responsiveFontSize(1.5),
     },
 })
 

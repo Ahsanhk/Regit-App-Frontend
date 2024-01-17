@@ -72,8 +72,8 @@ const LoginScreen = () => {
                     onChangeText={(text) => setPassword(text)}
                     color = {color.text}
                 />
-                <TouchableOpacity>
-                    <Text style={{marginTop: 25, paddingLeft: 150}}>Forgot your password?</Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Sms')}>
+                    {/* <Text style={{marginTop: 25, paddingLeft: 150}}>Forgot your password?</Text> */}
                 </TouchableOpacity>
             </View>
             <View style={styles.buttonContainer}>
@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
     textContainer: {
         // backgroundColor: 'yellow',
         flex: 0.5,
+        width: '100%',
         alignItems: 'center',
         justifyContent: 'center',
         // paddingBottom:20,

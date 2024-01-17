@@ -158,18 +158,36 @@ const RegistrationScreen = () => {
   return (
     <Container>
       <View style={styles.background}>
-        <View style= {styles.topbar}>
-          <TopBar />
-        </View>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.navigate("Home")}>
+          <Icon name="arrow-back-ios" size={20} color="#dedfe0" />
+        </TouchableOpacity>
+        <Text
+          style={{
+            color: "#dedfe0",
+            fontSize: 20,
+            paddingLeft: "25%",
+          }}
+        >
+          Face Registeration
+        </Text>
+      </View>
         <View style ={styles.text}>
           <Text
             style={{
               color: color.primary,
               fontSize: 24,
-              // fontWeight: 'bold'
             }}
           >
-            Register your face!
+            {/* Register your face! */}
+          </Text>
+          <Text style={{fontSize: 16, color: '#f5f5f5', marginTop: '5%'}}>
+            Instructions: 
+          </Text>
+          <Text style={{fontSize: 14, color: '#f5f5f5'}}>
+            Only one person's face should be in the frame {'\n'}
+            Try to keep your face straight
+
           </Text>
         </View>
         <View style = {styles.cameraAdj}>
@@ -233,8 +251,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: color.secondary
   },
-  topbar: {
-    flex: 0.1
+  header: {
+    flex: 0.04,
+    flexDirection: "row",
+    backgroundColor: color.secondary,
+    padding: 20,
+    alignItems: "center",
   },
   text: {
     flex: 0.1,
@@ -242,14 +264,14 @@ const styles = StyleSheet.create({
     paddingLeft: '5%'
   },
   bottom:{
-    flex: 0.3,
-    justifyContent: 'center',
+    flex: 0.1,
+    // justifyContent: 'center',
     alignItems: 'center'
   },
   cameraAdj: {
     flex: 0.6,
     padding: 15,
-    marginTop: 20,
+    marginTop: 50,
   },
   overlay: {
     position: 'absolute',
@@ -257,9 +279,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    borderWidth: 5, // Adjust the width of the border
-    borderRadius: 51, // Adjust the radius for the rounded border
-    borderColor: color.secondary, // Adjust the color and opacity of the border
+    borderWidth: 5, 
+    borderRadius: 51,
+    borderColor: color.secondary, 
     overflow: 'hidden',
     margin: 20,
   },

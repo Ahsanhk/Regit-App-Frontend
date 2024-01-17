@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AntIcon from 'react-native-vector-icons/AntDesign';
 import { color } from './color';
+import { responsiveFontSize, responsiveHeight } from 'react-native-responsive-dimensions';
 
 const TransactionCard = ({userTransactions, onLinkPress}) => {
 
@@ -11,7 +12,7 @@ const TransactionCard = ({userTransactions, onLinkPress}) => {
             return (
                 <View style={styles.transactionContainer}>
                   <View style={styles.iconContainer}>
-                    <Icon name="account-balance-wallet" size={24} color="#007AFF" />
+                    <Icon name="account-balance-wallet" size={responsiveHeight(3.3)} color="#007AFF" />
                   </View>
                   <View style={styles.detailsContainer}>
                     <Text style={styles.title}>{userTransactions.amount}</Text>
@@ -21,7 +22,7 @@ const TransactionCard = ({userTransactions, onLinkPress}) => {
                   <View style={{alignItems: 'center'}}>
                     <AntIcon 
                         name = "checkcircle"
-                        size = {24}
+                        size = {responsiveHeight(3.3)}
                         color = "green"
                     />
                     <TouchableOpacity onPress={() => onLinkPress(userTransactions.videoURL)}>
@@ -141,16 +142,15 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     title: {
-        fontSize: 16,
+        fontSize: responsiveFontSize(2),
         fontWeight: 'bold',
-        // marginBottom: 4,
     },
     date: {
-        fontSize: 12,
+        fontSize: responsiveFontSize(1.8),
         color: '#888',
     },
     amount: {
-        fontSize: 14,
+        fontSize: responsiveFontSize(1.9),
         // fontWeight: 'bold',
         color: '#007AFF',
         textDecorationLine: 'underline',    

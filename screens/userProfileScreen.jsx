@@ -8,7 +8,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { color } from '../components/color';
 import { useAppContext } from '../components/authProvider';
 
-const ProfileScreen = () => {
+const UserProfileScreen = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [photo, setPhoto] = useState(null); 
   const { userData } = useAppContext();
@@ -208,7 +208,43 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingLeft: 20,
   },
-  
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  previewImage: {
+    width: 200,
+    height: 200,
+    marginBottom: 20,
+    borderRadius: 10,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '80%',
+    marginBottom: 20,
+  },
+  uploadText: {
+    color: 'blue',
+    fontSize: 16,
+  },
+  deleteText: {
+    color: 'red',
+    fontSize: 16,
+  },
+  closeButton: {
+    backgroundColor: 'gray',
+    padding: 10,
+    borderRadius: 5,
+  },
+  closeText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+
 })
 
-export default ProfileScreen;
+export default UserProfileScreen;
