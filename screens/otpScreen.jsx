@@ -25,7 +25,7 @@ const OtpScreen = () => {
       otp,
     }
     try{
-      console.log(otpValData)
+      // console.log(otpValData)
       const response = await axios.post(`http://${ip_address}/validate-otp`, otpValData);
       console.log(response.data);
       
@@ -53,7 +53,7 @@ const OtpScreen = () => {
           else{
               const responseBody = await response.text();
               console.error('Failed to register user. Status:', response.status);
-              console.error('Response Body:', responseBody);
+              // console.error('Response Body:', responseBody);
           }
       } 
       catch (error) {

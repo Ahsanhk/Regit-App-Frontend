@@ -5,7 +5,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useAppContext } from '../components/authProvider';
 import ImagePicker from 'react-native-image-picker';
 
-import happy from '../assets/happi.png';
+import profile from '../assets/profile.png';
 import Container from '../components/background';
 import { color } from '../components/color';
 import { useNavigation } from '@react-navigation/native';
@@ -118,7 +118,7 @@ const UserScreen = () => {
           <View style = {styles.profileBox}>
             <View style = {styles.image}>
                     <Image
-                        source={happy}
+                        source={profile}
                         style={styles.image}
                         resizeMode="cover"
                     />
